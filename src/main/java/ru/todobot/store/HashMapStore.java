@@ -28,11 +28,17 @@ public class HashMapStore implements BaseStore{
 
     @Override
     public void deleteAll(LocalDate date) {
-
+        localStore.get(date).clear();
     }
 
     @Override
-    public void delete(LocalDate date, int index) {
+    public void delete(LocalDate key, int index) {
+        ArrayList<String> alreadyExistDeals = new ArrayList<>(localStore.get(key));
+        alreadyExistDeals.remove(index);
+        localStore.put(key,alreadyExistDeals);
+    }
 
+    public boolean isEmpty(LocalDate key){
+        return localStore.get(key).isEmpty();
     }
 }

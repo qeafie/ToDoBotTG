@@ -6,6 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Math.toIntExact;
@@ -17,7 +18,8 @@ public class SendMessageOperationService {
     private final String PLANNING_MESSAGE = "Вводите дела, после планирования нажмите кнопку \"Закончить планирование\"";
     private final String END_PLANNING_MESSAGE = "Планирование окончено для просмотра нажмите кнопку \"Показать дела\"";
     private final String INSTRUCTIONS = "Хочешь прочесть инструкцию?";
-    private final String REMOVE_DEAL = "Хочешь удалить дело?";
+    private final String REMOVE_DEAL = "Удалить дела?";
+    private final String DELETE_ALL_DEAL = "Все дела были удалены";
 
     private final ButtonService buttonService = new ButtonService();
 
@@ -76,8 +78,25 @@ public class SendMessageOperationService {
     public SendMessage createRemoveMessage(Update update) {
         SendMessage sendMessage = createSimpleMessage(update,REMOVE_DEAL);
         InlineKeyboardMarkup replyKeyboardMarkup =
-                buttonService.setInlineKeyboard(buttonService.createInlineButton(YES));
+                buttonService.setInlineKeyboard(buttonService.createInlineButton(DELETE_DEAL), buttonService.createInlineButton(DELETE_ALL));
+
+        InlineKeyboardMarkup replyKeyboardMarkup2 =
+                buttonService.setInlineKeyboard(buttonService.createInlineButton(DELETE_DEAL));
+
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
+
         return sendMessage;
     }
+    public SendMessage createRemoveMessages(Update update) {
+        SendMessage sendMessage = createSimpleMessage(update,REMOVE_DEAL);
+
+        InlineKeyboardMarkup replyKeyboardMarkup = buttonService.setInlineKeyboard(buttonService.createInlineButton(DELETE_DEAL),
+                buttonService.createInlineButton(DELETE_ALL));
+
+        sendMessage.setReplyMarkup(replyKeyboardMarkup);
+
+        return sendMessage;
+    }
+
+
 }

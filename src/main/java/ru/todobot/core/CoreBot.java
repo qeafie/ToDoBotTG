@@ -10,7 +10,7 @@ import ru.todobot.service.SendMessageOperationService;
 import ru.todobot.store.HashMapStore;
 
 import java.time.LocalDate;
-import java.util.Locale;
+import java.util.List;
 
 import static ru.todobot.constants.VarConstant.*;
 
@@ -28,20 +28,39 @@ public class CoreBot extends TelegramLongPollingBot {
                     break;
 
                 case START_PLANNING:
-                    isStartPlanning = true;
-                    executeMessage(sendMessageOperationService.createPlanningMessage(update));
+                    if (isStartPlanning){
+                        executeMessage(sendMessageOperationService.createSimpleMessage(update,PLANNING_NOT_END));
+                    }else {
+                        isStartPlanning = true;
+                        executeMessage(sendMessageOperationService.createPlanningMessage(update));
+                    }
                     break;
 
                 case END_PLANNING:
-                    isStartPlanning = false;
-                    executeMessage(sendMessageOperationService.createEndPlanningMessage(update));
-                    break;
-                case SHOW_DEALS:
                     if (!isStartPlanning){
-                    executeMessage(sendMessageOperationService.createSimpleMessage(update,store.selectAll(LocalDate.now())));
-                    executeMessage(sendMessageOperationService.createRemoveMessage(update));
+                        executeMessage(sendMessageOperationService.createSimpleMessage(update,PLANNING_NOT_START));
+                    }
+                    else {
+                        isStartPlanning = false;
+                        executeMessage(sendMessageOperationService.createEndPlanningMessage(update));
                     }
                     break;
+
+                case SHOW_DEALS:
+                    if (!isStartPlanning){
+                        if (!store.isEmpty(LocalDate.now())){
+                            executeMessage(sendMessageOperationService.createSimpleMessage(update,store.selectAll(LocalDate.now())));
+                            executeMessage(sendMessageOperationService.createRemoveMessages(update));
+
+                        }
+                        else executeMessage(sendMessageOperationService.createSimpleMessage(update,LIST_EMPTY ));
+
+                    }
+                    else{ executeMessage(sendMessageOperationService.createSimpleMessage(update,PLANNING_NOT_END));
+                    }
+
+                    break;
+
                 default:
                     if(isStartPlanning) {
                         store.save(LocalDate.now(), update.getMessage().getText());
@@ -49,15 +68,20 @@ public class CoreBot extends TelegramLongPollingBot {
             }
         }
         if (update.hasCallbackQuery()){
-            String instruction = "Бот помогает сформировать дела на день.\n\n" +
-                    "Чтобы добавить дело нажмите на кнопку \"Начать планирование," +
-                    " присылайте дела отдельными сообщениям.\n\nПо завершению нажмите на кнопку \"Закончить планирование.\"\n\n" +
-                    "Кнопка \"Показать дела\", поможет вам увидеть уже существующие дела.";
+
             String callDate = update.getCallbackQuery().getData();
             switch (callDate){
                 case YES:
-                    EditMessageText text = sendMessageOperationService.createEditMessage(update,instruction);
-                    executeMessage(text);
+                    EditMessageText textINS = sendMessageOperationService.createEditMessage(update, INSTRUCTION);
+                    executeMessage(textINS);
+                    break;
+
+                case DELETE_ALL:
+                    store.deleteAll(LocalDate.now());
+                    EditMessageText textDEL = sendMessageOperationService.createEditMessage(update, DELETE_ALL_DONE);
+                    executeMessage(textDEL);
+
+                    break;
             }
 
         }
@@ -76,6 +100,16 @@ public class CoreBot extends TelegramLongPollingBot {
     private <T extends BotApiMethod> void executeMessage(T sendMessage){
         try {
             execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private <T extends BotApiMethod> void executeMessage(List<SendMessage> sendMessages){
+        try {
+            for (SendMessage sendMessage :sendMessages) {
+                execute(sendMessage);
+            }
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

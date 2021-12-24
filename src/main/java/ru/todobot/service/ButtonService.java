@@ -14,6 +14,7 @@ public class ButtonService {
     public ReplyKeyboardMarkup setButtons(List<KeyboardRow> keyboardRowList){
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setSelective(true);
+        replyKeyboardMarkup.setResizeKeyboard(true);
         replyKeyboardMarkup.setKeyboard(keyboardRowList);
         return replyKeyboardMarkup;
 
@@ -36,6 +37,19 @@ public class ButtonService {
         inlineKeyboardButton.setText(buttonName);
         inlineKeyboardButton.setCallbackData(buttonName);
         keyboardRow.add(inlineKeyboardButton);
+        keyBoardList.add(keyboardRow);
+        return keyBoardList;
+    }
+
+    public List<List<InlineKeyboardButton>> createInlineButton(String... buttonNames){
+        List<List<InlineKeyboardButton>> keyBoardList = new ArrayList<>();
+        List<InlineKeyboardButton> keyboardRow = new ArrayList<>();
+        for (String buttonName: buttonNames){
+            InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+            inlineKeyboardButton.setText(buttonName);
+            inlineKeyboardButton.setCallbackData(buttonName);
+            keyboardRow.add(inlineKeyboardButton);
+        }
 
         keyBoardList.add(keyboardRow);
         return keyBoardList;
@@ -44,6 +58,14 @@ public class ButtonService {
     public InlineKeyboardMarkup setInlineKeyboard(List<List<InlineKeyboardButton>> keyBoardList){
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(keyBoardList);
+        return inlineKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup setInlineKeyboard(List<List<InlineKeyboardButton>> ...keyBoardLists){
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        for (List<List<InlineKeyboardButton>> keyBoardList: keyBoardLists){
+            inlineKeyboardMarkup.setKeyboard(keyBoardList);
+        }
         return inlineKeyboardMarkup;
     }
 }
