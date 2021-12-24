@@ -94,7 +94,7 @@ public class CoreBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        return "2132863700:AAFZRRL2CCihhJdVGzYkPfqfKF8uUuKbO_k";
+        return "null";
     }
 
     private <T extends BotApiMethod> void executeMessage(T sendMessage){
